@@ -8,7 +8,7 @@ import {
 
 interface Props {
   params: {
-    tag?: string[];
+    slug?: string[];
   };
   searchParams: {
     page?: string;
@@ -16,8 +16,11 @@ interface Props {
   };
 }
 
-export default async function NotesPage({ params, searchParams }: Props) {
-  const tag = params.tag?.[0] || "all";
+export default async function FilteredNotesPage({
+  params,
+  searchParams,
+}: Props) {
+  const tag = params.slug?.[0] || "all";
   const page = Number(searchParams.page) || 1;
   const search = searchParams.search || "";
 
