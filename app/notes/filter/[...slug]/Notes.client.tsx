@@ -6,17 +6,19 @@ import { useDebouncedCallback } from "use-debounce";
 import { useSearchParams, useRouter } from "next/navigation";
 import { keepPreviousData } from "@tanstack/react-query";
 import css from "./page.module.css";
-import { fetchNotes } from "@/lib/api/api";
+import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import Modal from "@/components/Modal/Modal";
 
-const NotesClient = () => {
+export default function NotesClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const params = useParams();
 
+  const currentTag = params.tag?.[0] || "all";
   const initialPage = Number(searchParams.get("page")) || 1;
   const initialSearch = searchParams.get("search") || "";
 
@@ -29,10 +31,11 @@ const NotesClient = () => {
     if (newPage > 1) params.set("page", newPage.toString());
     if (newSearch) params.set("search", newSearch);
 
+    const basePath = `/notes/filter/${currentTag}`;
     const queryString = params.toString();
-    router.push(queryString ? `/notes?${queryString}` : "/notes", {
-      scroll: false,
-    });
+    const url = queryString ? `${basePath}?${queryString}` : basePath;
+
+    router.push(url, { scroll: false });
   };
 
   const handleClearSearch = () => {
@@ -50,8 +53,14 @@ const NotesClient = () => {
   }, [initialPage]);
 
   const { data, isLoading, isError, error, isSuccess } = useQuery({
-    queryKey: ["notes", page, search],
-    queryFn: () => fetchNotes(page, search, 12),
+    queryKey: ["notes", page, search, currentTag],
+    queryFn: () =>
+      fetchNotes(
+        page,
+        search,
+        12,
+        currentTag === "all" ? undefined : currentTag
+      ),
     placeholderData: keepPreviousData,
   });
 
@@ -96,6 +105,4 @@ const NotesClient = () => {
       )}
     </div>
   );
-};
-
-export default NotesClient;
+}

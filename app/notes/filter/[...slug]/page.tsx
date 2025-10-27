@@ -1,5 +1,5 @@
-import { fetchNotes } from "@/lib/api/api";
-import FilteredNotesClient from "./FilteredNotesClient";
+import { fetchNotes } from "@/lib/api";
+import NotesClient from "./Notes.client";
 import {
   dehydrate,
   HydrationBoundary,
@@ -16,10 +16,7 @@ interface Props {
   };
 }
 
-export default async function FilteredNotesPage({
-  params,
-  searchParams,
-}: Props) {
+export default async function NotesPage({ params, searchParams }: Props) {
   const tag = params.tag?.[0] || "all";
   const page = Number(searchParams.page) || 1;
   const search = searchParams.search || "";
@@ -34,7 +31,7 @@ export default async function FilteredNotesPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <FilteredNotesClient initialTag={tag} />
+      <NotesClient />
     </HydrationBoundary>
   );
 }
