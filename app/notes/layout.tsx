@@ -1,23 +1,22 @@
-export default function NotesLayout({
-  children,
-  sidebar,
-  modal,
-}: {
-  children: React.ReactNode;
-  sidebar: React.ReactNode;
-  modal: React.ReactNode;
-}) {
+import { ReactNode } from "react";
+
+interface NotesLayoutProps {
+  children: ReactNode;
+  modal: ReactNode;
+}
+
+export default function NotesLayout({ children, modal }: NotesLayoutProps) {
   return (
     <>
       <div
         style={{
-          display: "flex",
-          gap: "2rem",
           minHeight: "calc(100vh - 200px)",
+          maxWidth: "1400px",
+          margin: "0 auto",
+          padding: "0 16px",
         }}
       >
-        <aside style={{ width: "250px", flexShrink: 0 }}>{sidebar}</aside>
-        <main style={{ flex: 1 }}>{children}</main>
+        {children}
       </div>
       {modal}
     </>
