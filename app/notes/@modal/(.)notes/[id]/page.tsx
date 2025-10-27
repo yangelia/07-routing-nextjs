@@ -21,7 +21,7 @@ export default function NoteModal() {
   });
 
   const handleClose = () => {
-    router.back(); // Возвращаемся на предыдущую страницу
+    router.back();
   };
 
   if (isLoading)
