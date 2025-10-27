@@ -4,13 +4,18 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
+  min-height: calc(100vh - 200px);
 }
 
 .filter aside {
-  width: 250px;
+  width: 280px;
   flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
 }
 
 .filter .content {
   flex: 1;
+  min-width: 0;
 }

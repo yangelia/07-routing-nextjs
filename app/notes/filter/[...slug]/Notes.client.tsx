@@ -72,21 +72,29 @@ export default function NotesClient() {
   return (
     <div className={css.container}>
       <header className={css.toolbar}>
-        <SearchBox
-          value={search}
-          onChange={debouncedSearchChange}
-          onClear={handleClearSearch}
-        />
-        {isSuccess && data && data.totalPages > 1 && (
-          <Pagination
-            currentPage={page}
-            totalPages={data.totalPages}
-            onPageChange={handlePageChange}
+        <div style={{ flex: 1, maxWidth: "400px" }}>
+          <SearchBox
+            value={search}
+            onChange={debouncedSearchChange}
+            onClear={handleClearSearch}
           />
-        )}
-        <button className={css.addButton} onClick={() => setIsModalOpen(true)}>
-          + Create Note
-        </button>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          {isSuccess && data && data.totalPages > 1 && (
+            <Pagination
+              currentPage={page}
+              totalPages={data.totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+          <button
+            className={css.addButton}
+            onClick={() => setIsModalOpen(true)}
+          >
+            + Create Note
+          </button>
+        </div>
       </header>
 
       {isLoading && <p>Loading, please wait...</p>}
