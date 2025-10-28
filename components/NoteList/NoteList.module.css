@@ -177,3 +177,22 @@
     text-align: center;
   }
 }
+
+.titleLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.titleLink:hover .title {
+  color: #0070f3;
+  text-decoration: underline;
+}
+
+.tagLink {
+  text-decoration: none;
+}
+
+.tagLink:hover .tag {
+  background-color: #e9ecef;
+}

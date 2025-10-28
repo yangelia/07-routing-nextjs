@@ -1,17 +1,14 @@
-import css from "./Filter.module.css";
-
-type Props = {
+export default function FilterLayout({
+  children,
+  sidebar,
+}: {
   children: React.ReactNode;
   sidebar: React.ReactNode;
-};
-
-const NotesLayout = ({ children, sidebar }: Props) => {
+}) {
   return (
-    <section className={css.filter}>
+    <div className="container">
       <aside>{sidebar}</aside>
-      <div className={css.content}>{children}</div>
-    </section>
+      <main>{children}</main>
+    </div>
   );
-};
-
-export default NotesLayout;
+}

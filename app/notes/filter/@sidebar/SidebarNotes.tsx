@@ -8,7 +8,8 @@ const tags = ["all", "Todo", "Work", "Personal", "Meeting", "Shopping"];
 
 export default function SidebarNotes() {
   const params = useParams();
-  const currentTag = params.slug?.[0] || "all";
+  // Меняем с slug на tag
+  const currentTag = (params.tag as string) || "all";
 
   return (
     <div className={css.sidebar}>
