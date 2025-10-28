@@ -6,9 +6,9 @@ export default function FilterLayout({
   sidebar: React.ReactNode;
 }) {
   return (
-    <div className="container">
-      <aside>{sidebar}</aside>
-      <main>{children}</main>
+    <div style={{ display: "flex", gap: "2rem" }}>
+      <aside style={{ width: "250px" }}>{sidebar}</aside>
+      <main style={{ flex: 1 }}>{children}</main>
     </div>
   );
 }

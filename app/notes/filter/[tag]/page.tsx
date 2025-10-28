@@ -4,20 +4,25 @@ import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
 
 interface FilterPageProps {
-  params: {
-    tag: string;
-  };
+  params: Promise<{ tag: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-export default async function FilterPage({ params }: FilterPageProps) {
+export default async function FilterPage({
+  params,
+  searchParams,
+}: FilterPageProps) {
   const { tag } = await params;
+  const { page } = await searchParams;
+  const currentPage = page ? parseInt(page, 10) : 1;
+
   const queryClient = getQueryClient();
 
   const filters = tag === "all" ? undefined : { tag };
 
   await queryClient.prefetchQuery({
-    queryKey: ["notes", filters],
-    queryFn: () => fetchNotes(filters),
+    queryKey: ["notes", filters, currentPage],
+    queryFn: () => fetchNotes({ ...filters, page: currentPage, limit: 10 }),
   });
 
   return (

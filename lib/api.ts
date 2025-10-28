@@ -53,3 +53,27 @@ export const deleteNote = async (id: string): Promise<Note> => {
   const res = await axios.delete<Note>(`${API_URL}/${id}`, { headers });
   return res.data;
 };
+
+export async function fetchNotes(filters?: {
+  tag?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const url = new URL("http://localhost:3001/api/notes");
+
+  if (filters?.tag) {
+    url.searchParams.set("tag", filters.tag);
+  }
+  if (filters?.page) {
+    url.searchParams.set("page", filters.page.toString());
+  }
+  if (filters?.limit) {
+    url.searchParams.set("limit", filters.limit.toString());
+  }
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error("Failed to fetch notes");
+  }
+  return response.json();
+}

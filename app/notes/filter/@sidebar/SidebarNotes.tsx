@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import css from "./SidebarNotes.module.css";
 
 const tags = ["all", "Todo", "Work", "Personal", "Meeting", "Shopping"];
 
 export default function SidebarNotes() {
   const params = useParams();
-  // Меняем с slug на tag
+  const searchParams = useSearchParams();
   const currentTag = (params.tag as string) || "all";
+  const currentPage = searchParams.get("page") || "1";
 
   return (
     <div className={css.sidebar}>
@@ -17,7 +18,7 @@ export default function SidebarNotes() {
       <ul className={css.menuList}>
         <li className={css.menuItem}>
           <Link
-            href={`/notes/filter/all`}
+            href={`/notes/filter/all?page=${currentPage}`}
             className={`${css.menuLink} ${
               currentTag === "all" ? css.active : ""
             }`}
@@ -30,7 +31,7 @@ export default function SidebarNotes() {
           .map((tag) => (
             <li key={tag} className={css.menuItem}>
               <Link
-                href={`/notes/filter/${tag}`}
+                href={`/notes/filter/${tag}?page=${currentPage}`}
                 className={`${css.menuLink} ${
                   currentTag === tag ? css.active : ""
                 }`}
