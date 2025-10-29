@@ -44,9 +44,8 @@ const NoteList = ({ notes }: NoteListProps) => {
 
           <p className={css.content}>{note.content}</p>
           <div className={css.footer}>
-            <Link href={`/notes/filter/${note.tag}`} className={css.tagLink}>
-              <span className={css.tag}>{note.tag}</span>
-            </Link>
+            {/* Теперь тег просто текст без ссылки */}
+            <span className={css.tag}>{note.tag}</span>
             <button
               className={css.button}
               onClick={() => handleDelete(note.id)}

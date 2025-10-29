@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
@@ -16,16 +16,14 @@ interface NotesClientProps {
 }
 
 export default function NotesClient({ currentTag }: NotesClientProps) {
-  const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const tag = params.tag as string;
   const currentPage = Number(searchParams.get("page")) || 1;
   const searchValue = searchParams.get("search") || "";
 
-  const filters = tag === "all" ? undefined : { tag };
+  const filters = currentTag === "all" ? undefined : { tag: currentTag };
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["notes", filters, currentPage, searchValue],
@@ -41,7 +39,7 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
   const handlePageChange = (page: number) => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
     newSearchParams.set("page", page.toString());
-    router.push(`/notes/filter/${tag}?${newSearchParams.toString()}`);
+    router.push(`/notes/filter/${currentTag}?${newSearchParams.toString()}`);
   };
 
   const handleSearchChange = (value: string) => {
@@ -52,7 +50,7 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
       newSearchParams.delete("search");
     }
     newSearchParams.set("page", "1");
-    router.push(`/notes/filter/${tag}?${newSearchParams.toString()}`);
+    router.push(`/notes/filter/${currentTag}?${newSearchParams.toString()}`);
   };
 
   const handleSearchClear = () => {
@@ -66,18 +64,8 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
 
   return (
     <div className={css.container}>
-      <div className={css.pageHeader}>
-        <h1 className={css.title}>
-          {currentTag === "all" ? "All Notes" : `Notes with tag: ${currentTag}`}
-        </h1>
-        <div className={css.stats}>
-          {notes.length} note{notes.length !== 1 ? "s" : ""} found
-        </div>
-      </div>
-
-      {/* Верхняя панель как в старом проекте */}
-      <div className={css.controls}>
-        <div className={css.searchSection}>
+      <div className={css.toolbar}>
+        <div>
           <SearchBox
             value={searchValue}
             onChange={handleSearchChange}
@@ -85,7 +73,7 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
           />
         </div>
 
-        <div className={css.paginationSection}>
+        <div>
           {totalPages > 1 && (
             <Pagination
               currentPage={currentPage}
@@ -95,19 +83,12 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
           )}
         </div>
 
-        <div className={css.createSection}>
-          <button
-            className={css.createButton}
-            onClick={() => setIsModalOpen(true)}
-          >
-            Create Note
-          </button>
-        </div>
+        <button className={css.addButton} onClick={() => setIsModalOpen(true)}>
+          Create Note
+        </button>
       </div>
 
-      <div className={css.content}>
-        <NoteList notes={notes} />
-      </div>
+      <NoteList notes={notes} />
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
