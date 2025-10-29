@@ -9,7 +9,9 @@ const tags = ["all", "Todo", "Work", "Personal", "Meeting", "Shopping"];
 export default function SidebarNotes() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const currentTag = (params.tag as string) || "all";
+
+  const currentSlug = (params.slug as string[]) || [];
+  const currentTag = currentSlug[0] || "all";
   const currentPage = searchParams.get("page") || "1";
 
   return (
