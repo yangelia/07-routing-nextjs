@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
+import css from "./page.module.css";
 
 interface NotesClientProps {
   currentTag: string;
@@ -31,22 +32,35 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
     router.push(`/notes/filter/${tag}?${newSearchParams.toString()}`);
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (isLoading) return <div className={css.loading}>Loading notes...</div>;
+  if (error) return <div className={css.error}>Error: {error.message}</div>;
 
   const { notes, totalPages } = data || { notes: [], totalPages: 1 };
 
   return (
-    <div>
-      <h1>
-        {currentTag === "all" ? "All Notes" : `Notes with tag: ${currentTag}`}
-      </h1>
-      <NoteList notes={notes} />
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+    <div className={css.container}>
+      <div className={css.header}>
+        <h1 className={css.title}>
+          {currentTag === "all" ? "All Notes" : `Notes with tag: ${currentTag}`}
+        </h1>
+        <div className={css.stats}>
+          {notes.length} note{notes.length !== 1 ? "s" : ""} found
+        </div>
+      </div>
+
+      <div className={css.content}>
+        <NoteList notes={notes} />
+      </div>
+
+      {totalPages > 1 && (
+        <div className={css.paginationWrapper}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 }
