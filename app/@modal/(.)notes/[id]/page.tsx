@@ -1,7 +1,7 @@
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
 import getQueryClient from "@/lib/getQueryClient";
-import NoteModal from "@/components/NoteModal/NoteModal";
+import NoteModal from "./NoteModal";
 
 export default async function InterceptedNotePage({
   params,
