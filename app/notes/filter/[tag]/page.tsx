@@ -22,7 +22,12 @@ export default async function FilterPage({
 
   await queryClient.prefetchQuery({
     queryKey: ["notes", filters, currentPage],
-    queryFn: () => fetchNotes({ ...filters, page: currentPage, limit: 10 }),
+    queryFn: () =>
+      fetchNotes({
+        ...filters,
+        page: currentPage,
+        limit: 10,
+      }),
   });
 
   return (
