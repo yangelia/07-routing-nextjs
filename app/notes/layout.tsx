@@ -1,24 +1,20 @@
-import { ReactNode } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Notes",
+  description: "Manage your notes",
+};
 
 interface NotesLayoutProps {
-  children: ReactNode;
-  modal: ReactNode;
+  children: React.ReactNode;
+  modal?: React.ReactNode;
 }
 
 export default function NotesLayout({ children, modal }: NotesLayoutProps) {
   return (
-    <>
-      <div
-        style={{
-          minHeight: "calc(100vh - 200px)",
-          maxWidth: "1400px",
-          margin: "0 auto",
-          padding: "0 16px",
-        }}
-      >
-        {children}
-      </div>
+    <div className="notes-layout">
       {modal}
-    </>
+      {children}
+    </div>
   );
 }

@@ -14,7 +14,6 @@ const headers = {
   "Content-Type": "application/json",
 };
 
-// Одна универсальная функция fetchNotes
 export const fetchNotes = async (filters?: {
   tag?: string;
   page?: number;

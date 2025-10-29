@@ -15,10 +15,12 @@ export default function NoteModal({ noteId }: NoteModalProps) {
   const {
     data: note,
     isLoading,
-    error,
+    isError,
+    refetch,
   } = useQuery({
     queryKey: ["note", noteId],
     queryFn: () => fetchNoteById(noteId),
+    refetchOnMount: false,
   });
 
   const handleClose = () => {
@@ -31,22 +33,53 @@ export default function NoteModal({ noteId }: NoteModalProps) {
     }
   };
 
-  if (isLoading) return <div className={css.modal}>Loading...</div>;
-  if (error) return <div className={css.modal}>Error loading note</div>;
+  if (isLoading) {
+    return (
+      <div className={css.overlay} onClick={handleClose}>
+        <div className={css.modal}>
+          <div className={css.loader}>Loading note...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !note) {
+    return (
+      <div className={css.overlay} onClick={handleClose}>
+        <div className={css.modal}>
+          <div className={css.error}>
+            <p>Failed to load note details.</p>
+            <button className={css.retryBtn} onClick={() => refetch()}>
+              Try again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={css.overlay} onClick={handleOverlayClick}>
       <div className={css.modal}>
         <button className={css.closeButton} onClick={handleClose}>
-          ×
+          ✕
         </button>
-        <h2>{note?.title}</h2>
-        <p className={css.content}>{note?.content}</p>
-        <div className={css.footer}>
-          <span className={css.tag}>{note?.tag}</span>
-          <span className={css.date}>
-            {note && new Date(note.createdAt).toLocaleDateString()}
-          </span>
+
+        <div className={css.item}>
+          <div className={css.header}>
+            <h2>{note.title}</h2>
+            <span className={css.date}>
+              {new Date(note.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+
+          <div className={css.content}>{note.content}</div>
+
+          {note.tag && (
+            <div>
+              <span className={css.tag}>{note.tag}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
