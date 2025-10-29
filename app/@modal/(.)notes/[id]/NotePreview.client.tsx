@@ -1,15 +1,15 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
-import css from "./NoteModal.module.css";
+import css from "./NotePreview.module.css";
 
-interface NoteModalProps {
+type NotePreviewProps = {
   noteId: string;
-}
+};
 
-export default function NoteModal({ noteId }: NoteModalProps) {
+export default function NotePreview({ noteId }: NotePreviewProps) {
   const router = useRouter();
 
   const {
