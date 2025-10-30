@@ -34,24 +34,22 @@ const NoteList = ({ notes }: NoteListProps) => {
     <ul className={css.list}>
       {notes.map((note) => (
         <li key={note.id} className={css.listItem}>
-          <Link
-            href={`/notes/${note.id}`}
-            className={css.titleLink}
-            scroll={false}
-          >
-            <h2 className={css.title}>{note.title}</h2>
-          </Link>
+          <h2 className={css.title}>{note.title}</h2>
 
           <p className={css.content}>{note.content}</p>
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
-
-            <button
-              className={css.button}
-              onClick={() => handleDelete(note.id)}
-            >
-              Delete
-            </button>
+            <div className={css.actions}>
+              <Link href={`/notes/${note.id}`} scroll={false}>
+                <button className={css.viewButton}>View Detail</button>
+              </Link>
+              <button
+                className={css.deleteButton}
+                onClick={() => handleDelete(note.id)}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </li>
       ))}
