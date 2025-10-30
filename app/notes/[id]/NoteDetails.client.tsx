@@ -14,6 +14,7 @@ export default function NoteDetailsClient() {
   } = useQuery({
     queryKey: ["note", id],
     queryFn: () => fetchNoteById(id as string),
+    refetchOnMount: false,
   });
 
   if (isLoading) return <p>Loading, please wait...</p>;
@@ -26,12 +27,9 @@ export default function NoteDetailsClient() {
           <h2>{note.title}</h2>
         </div>
         <p className={css.content}>{note.content}</p>
-        <div className={css.footer}>
-          <span className={css.tag}>{note.tag}</span>
-          <p className={css.date}>
-            {new Date(note.createdAt).toLocaleDateString()}
-          </p>
-        </div>
+        <p className={css.date}>
+          {new Date(note.createdAt).toLocaleDateString()}
+        </p>
       </div>
     </div>
   );
