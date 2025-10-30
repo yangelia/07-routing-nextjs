@@ -1,10 +1,8 @@
-// lib/api.ts
 import axios from "axios";
 import type { Note, CreateNoteRequest } from "@/types/note";
 
 const API_BASE_URL = "http://localhost:3001/api";
 
-// Тип для параметров запроса заметок
 interface FetchNotesParams {
   tag?: string;
   page?: number;

@@ -15,8 +15,7 @@ export default async function FilterPage({
   const { slug } = await params;
   const { page } = await searchParams;
   const currentPage = page ? parseInt(page, 10) : 1;
-
-  const tag = slug[0];
+  const tag = slug?.[0] || "all"; // Берем первый элемент slug как тег
 
   const queryClient = getQueryClient();
 
@@ -24,12 +23,7 @@ export default async function FilterPage({
 
   await queryClient.prefetchQuery({
     queryKey: ["notes", filters, currentPage],
-    queryFn: () =>
-      fetchNotes({
-        ...filters,
-        page: currentPage,
-        limit: 10,
-      }),
+    queryFn: () => fetchNotes({ ...filters, page: currentPage, limit: 10 }),
   });
 
   return (

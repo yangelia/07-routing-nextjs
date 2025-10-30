@@ -10,8 +10,8 @@ export default function SidebarNotes() {
   const params = useParams();
   const searchParams = useSearchParams();
 
-  const currentSlug = (params.slug as string[]) || [];
-  const currentTag = currentSlug[0] || "all";
+  const slug = params.slug as string[];
+  const currentTag = slug?.[0] || "all";
   const currentPage = searchParams.get("page") || "1";
 
   return (
