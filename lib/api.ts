@@ -7,6 +7,7 @@ interface FetchNotesParams {
   tag?: string;
   page?: number;
   limit?: number;
+  search?: string;
 }
 
 export async function fetchNotes(
@@ -24,6 +25,9 @@ export async function fetchNotes(
     params.limit = filters.limit;
   } else {
     params.limit = 10;
+  }
+  if (filters?.search) {
+    params.search = filters.search;
   }
 
   const response = await axios.get(`${API_BASE_URL}/notes`, { params });

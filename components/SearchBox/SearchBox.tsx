@@ -6,9 +6,15 @@ interface SearchBoxProps {
   value: string;
   onChange: (value: string) => void;
   onClear?: () => void;
+  onKeyPress?: (e: React.KeyboardEvent) => void;
 }
 
-const SearchBox = ({ value, onChange, onClear }: SearchBoxProps) => {
+const SearchBox = ({
+  value,
+  onChange,
+  onClear,
+  onKeyPress,
+}: SearchBoxProps) => {
   return (
     <div className={css.searchBox}>
       <input
@@ -17,6 +23,7 @@ const SearchBox = ({ value, onChange, onClear }: SearchBoxProps) => {
         placeholder="Search notes..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyPress={onKeyPress}
       />
       {value && onClear && (
         <button className={css.clearButton} onClick={onClear} type="button">

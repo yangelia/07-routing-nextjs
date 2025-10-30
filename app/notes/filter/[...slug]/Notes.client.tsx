@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
@@ -23,16 +23,31 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
   const slug = params.slug as string[];
   const tag = slug?.[0] || "all";
   const currentPage = Number(searchParams.get("page")) || 1;
+  const searchQuery = searchParams.get("search") || "";
 
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(searchQuery);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    setSearchValue(searchQuery);
+  }, [searchQuery]);
 
   const filters = tag === "all" ? undefined : { tag };
 
+  const queryFilters = {
+    ...filters,
+    ...(searchQuery && { search: searchQuery }),
+    page: currentPage,
+    limit: 10,
+  };
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["notes", filters, currentPage],
-    queryFn: () => fetchNotes({ ...filters, page: currentPage, limit: 10 }),
+    queryKey: ["notes", queryFilters],
+    queryFn: () => fetchNotes(queryFilters),
   });
+
+  console.log("API Response:", data);
+  console.log("Query Filters:", queryFilters);
 
   const handlePageChange = (page: number) => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
@@ -44,16 +59,35 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
     setSearchValue(value);
   };
 
+  const handleSearchSubmit = () => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    if (searchValue.trim()) {
+      newSearchParams.set("search", searchValue.trim());
+    } else {
+      newSearchParams.delete("search");
+    }
+    newSearchParams.set("page", "1");
+    router.push(`/notes/filter/${tag}?${newSearchParams.toString()}`);
+  };
+
   const handleClearSearch = () => {
     setSearchValue("");
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.delete("search");
+    newSearchParams.set("page", "1");
+    router.push(`/notes/filter/${tag}?${newSearchParams.toString()}`);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearchSubmit();
+    }
   };
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   const { notes, totalPages } = data || { notes: [], totalPages: 1 };
-
-  console.log("Notes data:", notes);
 
   return (
     <div className={css.container}>
@@ -63,7 +97,11 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
             value={searchValue}
             onChange={handleSearchChange}
             onClear={handleClearSearch}
+            onKeyPress={handleKeyPress}
           />
+          <button onClick={handleSearchSubmit} className={css.searchButton}>
+            Search
+          </button>
         </div>
 
         <div className={css.actions}>
@@ -78,6 +116,7 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
 
       <h1 className={css.title}>
         {currentTag === "all" ? "All Notes" : `Notes with tag: ${currentTag}`}
+        {searchQuery && ` - Search: "${searchQuery}"`}
       </h1>
 
       <NoteList notes={notes} />
