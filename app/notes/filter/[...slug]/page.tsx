@@ -15,20 +15,19 @@ export default async function FilterPage({
   const { slug } = await params;
   const { page } = await searchParams;
   const currentPage = page ? parseInt(page, 10) : 1;
-  const tag = slug?.[0] || "all"; // Берем первый элемент slug как тег
+  const tag = slug?.[0] || "all";
 
   const queryClient = getQueryClient();
 
-  const filters = tag === "all" ? undefined : { tag };
-
   await queryClient.prefetchQuery({
-    queryKey: ["notes", filters, currentPage],
-    queryFn: () => fetchNotes({ ...filters, page: currentPage, limit: 10 }),
+    queryKey: ["notes", currentPage, "", tag],
+    queryFn: () =>
+      fetchNotes(currentPage, "", 12, tag === "all" ? undefined : tag),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NotesClient currentTag={tag} />
+      <NotesClient />
     </HydrationBoundary>
   );
 }
