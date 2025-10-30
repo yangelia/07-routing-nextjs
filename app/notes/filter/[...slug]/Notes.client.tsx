@@ -34,20 +34,18 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
 
   const filters = tag === "all" ? undefined : { tag };
 
-  const queryFilters = {
-    ...filters,
-    ...(searchQuery && { search: searchQuery }),
-    page: currentPage,
-    limit: 10,
-  };
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ["notes", queryFilters],
-    queryFn: () => fetchNotes(queryFilters),
+    queryKey: ["notes", filters, currentPage],
+    queryFn: () => fetchNotes({ ...filters, page: currentPage, limit: 10 }),
   });
 
-  console.log("API Response:", data);
-  console.log("Query Filters:", queryFilters);
+  console.log("=== DEBUG INFO ===");
+  console.log("isLoading:", isLoading);
+  console.log("error:", error);
+  console.log("data:", data);
+  console.log("filters:", filters);
+  console.log("currentPage:", currentPage);
+  console.log("tag:", tag);
 
   const handlePageChange = (page: number) => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
@@ -59,35 +57,28 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
     setSearchValue(value);
   };
 
-  const handleSearchSubmit = () => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    if (searchValue.trim()) {
-      newSearchParams.set("search", searchValue.trim());
-    } else {
-      newSearchParams.delete("search");
-    }
-    newSearchParams.set("page", "1");
-    router.push(`/notes/filter/${tag}?${newSearchParams.toString()}`);
-  };
-
   const handleClearSearch = () => {
     setSearchValue("");
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.delete("search");
-    newSearchParams.set("page", "1");
-    router.push(`/notes/filter/${tag}?${newSearchParams.toString()}`);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearchSubmit();
-    }
-  };
+  if (isLoading) {
+    console.log("Still loading...");
+    return <p>Loading...</p>;
+  }
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (error) {
+    console.error("Error details:", error);
+    return (
+      <div>
+        <p>Error loading notes: {error.message}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    );
+  }
 
-  const { notes, totalPages } = data || { notes: [], totalPages: 1 };
+  const { notes = [], totalPages = 1 } = data || {};
+
+  console.log("Rendering notes:", notes);
 
   return (
     <div className={css.container}>
@@ -97,11 +88,7 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
             value={searchValue}
             onChange={handleSearchChange}
             onClear={handleClearSearch}
-            onKeyPress={handleKeyPress}
           />
-          <button onClick={handleSearchSubmit} className={css.searchButton}>
-            Search
-          </button>
         </div>
 
         <div className={css.actions}>
@@ -116,16 +103,48 @@ export default function NotesClient({ currentTag }: NotesClientProps) {
 
       <h1 className={css.title}>
         {currentTag === "all" ? "All Notes" : `Notes with tag: ${currentTag}`}
-        {searchQuery && ` - Search: "${searchQuery}"`}
+        {notes.length > 0 && ` (${notes.length} notes)`}
       </h1>
+
+      <div
+        style={{
+          background: "#f0f8ff",
+          padding: "1rem",
+          marginBottom: "1rem",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
+      >
+        <h3>Debug Information:</h3>
+        <p>
+          <strong>Status:</strong>{" "}
+          {isLoading ? "Loading..." : error ? "Error" : "Loaded"}
+        </p>
+        <p>
+          <strong>Notes Count:</strong> {notes?.length || 0}
+        </p>
+        <p>
+          <strong>Current Tag:</strong> {tag}
+        </p>
+        <p>
+          <strong>Current Page:</strong> {currentPage}
+        </p>
+        {error && (
+          <p>
+            <strong>Error:</strong> {error.message}
+          </p>
+        )}
+      </div>
 
       <NoteList notes={notes} />
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
 
       {isCreateModalOpen && (
         <Modal onClose={() => setIsCreateModalOpen(false)}>
