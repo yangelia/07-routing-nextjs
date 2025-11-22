@@ -1,24 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
-import { useSearchParams, useRouter, useParams } from "next/navigation";
-import { keepPreviousData } from "@tanstack/react-query";
+import { useSearchParams, useRouter } from "next/navigation";
+import css from "./page.module.css";
 import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import Modal from "@/components/Modal/Modal";
-import css from "./page.module.css";
+import type { Note } from "@/types/note";
 
-export default function NotesClient() {
+type NotesClientProps = {
+  tag: string;
+};
+
+interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
+
+export default function NotesClient({ tag }: NotesClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const params = useParams();
 
-  const currentTag = params.slug?.[0] || "all";
   const initialPage = Number(searchParams.get("page")) || 1;
   const initialSearch = searchParams.get("search") || "";
 
@@ -31,7 +38,7 @@ export default function NotesClient() {
     if (newPage > 1) params.set("page", newPage.toString());
     if (newSearch) params.set("search", newSearch);
 
-    const basePath = `/notes/filter/${currentTag}`;
+    const basePath = `/notes/filter/${encodeURIComponent(tag)}`;
     const queryString = params.toString();
     const url = queryString ? `${basePath}?${queryString}` : basePath;
 
@@ -52,15 +59,15 @@ export default function NotesClient() {
     setPage(initialPage);
   }, [initialPage]);
 
-  const { data, isLoading, isError, error, isSuccess } = useQuery({
-    queryKey: ["notes", page, search, currentTag],
+  const { data, isLoading, isError, error, isSuccess } = useQuery<
+    FetchNotesResponse,
+    Error
+  >({
+    queryKey: ["notes", page, search, tag],
     queryFn: () =>
-      fetchNotes(
-        page,
-        search,
-        12,
-        currentTag === "all" ? undefined : currentTag
-      ),
+      fetchNotes(page, search, 12, tag === "all" ? undefined : tag),
+    // в React Query v5 вместо поля keepPreviousData
+    // используется helper keepPreviousData как placeholderData
     placeholderData: keepPreviousData,
   });
 
@@ -72,39 +79,38 @@ export default function NotesClient() {
   return (
     <div className={css.container}>
       <header className={css.toolbar}>
-        <div style={{ flex: 1, maxWidth: "400px" }}>
-          <SearchBox
-            value={search}
-            onChange={debouncedSearchChange}
-            onClear={handleClearSearch}
-          />
-        </div>
+        <SearchBox
+          value={search}
+          onChange={debouncedSearchChange}
+          onClear={handleClearSearch}
+        />
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          {isSuccess && data && data.totalPages > 1 && (
-            <Pagination
-              currentPage={page}
-              totalPages={data.totalPages}
-              onPageChange={handlePageChange}
-            />
-          )}
-          <button
-            className={css.addButton}
-            onClick={() => setIsModalOpen(true)}
-          >
-            + Create Note
-          </button>
-        </div>
+        {isSuccess && data?.totalPages && data.totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={data.totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
+
+        <button
+          type="button"
+          className={css.addButton}
+          onClick={() => setIsModalOpen(true)}
+        >
+          + Create Note
+        </button>
       </header>
 
       {isLoading && <p>Loading, please wait...</p>}
+
       {isError && (
         <div className={css.error}>
           Error: {error?.message || "Something went wrong"}
         </div>
       )}
 
-      {isSuccess && data && <NoteList notes={data.notes} />}
+      {isSuccess && data?.notes && <NoteList notes={data.notes} />}
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
