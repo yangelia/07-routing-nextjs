@@ -5,7 +5,7 @@ import NotesClient from "./Notes.client";
 
 interface FilterPageProps {
   params: Promise<{ slug: string[] }>;
-  searchParams?: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 export default async function FilterPage({
@@ -13,8 +13,8 @@ export default async function FilterPage({
   searchParams,
 }: FilterPageProps) {
   const { slug } = await params;
-  const searchParamsObj = searchParams ? await searchParams : {};
-  const { page } = searchParamsObj || {};
+  const { page } = await searchParams;
+
   const currentPage = page ? parseInt(page, 10) : 1;
   const tag = slug?.[0] || "all";
 
@@ -23,17 +23,12 @@ export default async function FilterPage({
   await queryClient.prefetchQuery({
     queryKey: ["notes", currentPage, "", tag],
     queryFn: () =>
-      fetchNotes(
-        currentPage,
-        "",
-        12,
-        tag === "all" ? undefined : (tag as string)
-      ),
+      fetchNotes(currentPage, "", 12, tag === "all" ? undefined : tag),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      {/* Передаём tag пропом, как требует ментор */}
+      {/* раньше было <NotesClient /> */}
       <NotesClient tag={tag} />
     </HydrationBoundary>
   );

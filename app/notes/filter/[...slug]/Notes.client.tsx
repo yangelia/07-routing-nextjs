@@ -11,18 +11,12 @@ import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import Modal from "@/components/Modal/Modal";
-import type { Note } from "@/types/note";
 
 type NotesClientProps = {
   tag: string;
 };
 
-interface FetchNotesResponse {
-  notes: Note[];
-  totalPages: number;
-}
-
-export default function NotesClient({ tag }: NotesClientProps) {
+const NotesClient = ({ tag }: NotesClientProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -59,15 +53,10 @@ export default function NotesClient({ tag }: NotesClientProps) {
     setPage(initialPage);
   }, [initialPage]);
 
-  const { data, isLoading, isError, error, isSuccess } = useQuery<
-    FetchNotesResponse,
-    Error
-  >({
+  const { data, isLoading, isError, error, isSuccess } = useQuery({
     queryKey: ["notes", page, search, tag],
     queryFn: () =>
       fetchNotes(page, search, 12, tag === "all" ? undefined : tag),
-    // в React Query v5 вместо поля keepPreviousData
-    // используется helper keepPreviousData как placeholderData
     placeholderData: keepPreviousData,
   });
 
@@ -85,7 +74,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
           onClear={handleClearSearch}
         />
 
-        {isSuccess && data?.totalPages && data.totalPages > 1 && (
+        {isSuccess && data && data.totalPages > 1 && (
           <Pagination
             currentPage={page}
             totalPages={data.totalPages}
@@ -110,7 +99,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
         </div>
       )}
 
-      {isSuccess && data?.notes && <NoteList notes={data.notes} />}
+      {isSuccess && data && <NoteList notes={data.notes} />}
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
@@ -119,4 +108,6 @@ export default function NotesClient({ tag }: NotesClientProps) {
       )}
     </div>
   );
-}
+};
+
+export default NotesClient;
